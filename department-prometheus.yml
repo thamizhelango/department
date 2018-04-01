@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: department-app
+  namespace: micro
+  labels:
+    team: micro
+spec:
+  selector:
+    matchLabels:
+      app: department
+  endpoints:
+  - port: web
+    path: /prometheusMetrics

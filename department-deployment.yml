@@ -1,0 +1,56 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: department
+  namespace: micro
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: department
+    spec:
+      containers:
+      - name: department-app
+        image: thamizhelango/department:1.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: SPRING_CLOUD_CONSUL_HOST
+          value: consul.micro.svc.cluster.local
+        - name: SPRING_CLOUD_CONSUL_PORT
+          value: "8500"
+        - name: SPRING_DATASOURCE_URL
+          value: jdbc:mysql://department-mysql.micro.svc.cluster.local:3306/department?useUnicode=true&characterEncoding=utf8&useSSL=false
+        - name: JHIPSTER_METRICS_LOGS_ENABLED
+          value: 'true'
+        - name: JHIPSTER_LOGGING_LOGSTASH_ENABLED
+          value: 'true'
+        - name: JHIPSTER_LOGGING_LOGSTASH_HOST
+          value: jhipster-logstash
+        - name: JHIPSTER_METRICS_PROMETHEUS_ENABLED
+          value: 'true'
+        - name: JHIPSTER_METRICS_PROMETHEUS_ENDPOINT
+          value: /prometheusMetrics
+        - name: JAVA_OPTS
+          value: " -Xmx256m -Xms256m"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+        ports:
+        - name: web
+          containerPort: 8081
+        readinessProbe:
+          httpGet:
+            path: /management/health
+            port: web
+        livenessProbe:
+          httpGet:
+            path: /management/health
+            port: web
+          initialDelaySeconds: 180
